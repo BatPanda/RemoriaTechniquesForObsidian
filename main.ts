@@ -1,6 +1,7 @@
 import { appendFile } from 'fs';
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFolder } from 'obsidian';
 import { json } from 'stream/consumers';
+import { getApi, isPluginEnabled, registerApi } from "@aidenlx/folder-note-core";
 const fetch = require('node-fetch');
 
 // Remember to rename these classes and interfaces!
@@ -10,7 +11,7 @@ interface RemoriaTechniquesForObsidianSettings {
 }
 
 const DEFAULT_SETTINGS: RemoriaTechniquesForObsidianSettings = {
-	mySetting: 'Path2Content'
+	mySetting: 'Techniques'
 }
 
 export default class RemoriaTechniquesForObsidian extends Plugin {
@@ -101,8 +102,47 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 		await this.saveData(this.settings);
 	}
 
+	makeNodeFile(path : string, name : string, content : string) : void {
+		this.app.vault.create(path+'/'+name+'.md','#generated_by_rto_plugin '+content);
+	}
+
+	async makeFolder(path : string, name:string) : Promise<void>;
+	async makeFolder(path : string, name: string, noteContent? : string) : Promise<void> {
+		var make_note = false;
+		var truePath = path+'/'+name;
+		if (noteContent != null) {
+			make_note = true;
+		}
+		console.log("Attempting to make folder @ "+truePath);
+		if (await this.app.vault.getAbstractFileByPath(truePath) != null) {
+			console.log('Folder already existed, deleting now...');
+			await this.app.vault.delete(await this.app.vault.getAbstractFileByPath(truePath),true);
+		}
+
+		await this.app.vault.createFolder(truePath);
+		
+		// if (make_note) {
+		// 	var folder : TFolder = await this.app.vault.getAbstractFileByPath(truePath); 
+		// 	await getApi().CreateFolderNote(folder);
+		// }
+	}
+
 	generateFilesFromJson(jsonData : any) {
 		new Notice('API Data loaded using version: '+jsonData.version_number);
+		var root_path = "Paths/Path 2 - Technique Mastery";
+
+		console.log("========= Building Techniques from API data =========");
+		
+		var masterys_and_clusters_combined : string[] = [];
+		jsonData.techniques.forEach((tech:any) => {masterys_and_clusters_combined.push(tech.cluster);},this);		
+		masterys_and_clusters_combined = [...new Set(masterys_and_clusters_combined)];
+		console.log(masterys_and_clusters_combined);
+
+
+
+		this.makeFolder(root_path,this.settings.mySetting); //make root folder
+
+
 	}
 
 	async fetchAPIData(): Promise<void> {
@@ -151,7 +191,7 @@ class RemoriaTechniquesForObsidianSettingTab extends PluginSettingTab {
 			.setName('Root File Name')
 			.setDesc('This is the name of the root file')
 			.addText(text => text
-				.setPlaceholder('Path2Content')
+				.setPlaceholder('Techniques')
 				.setValue(this.plugin.settings.mySetting)
 				.onChange(async (value) => {
 					console.log('RTO | Root file name: ' + value);
