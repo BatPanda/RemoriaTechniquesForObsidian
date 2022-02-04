@@ -1,7 +1,8 @@
 import { appendFile } from 'fs';
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TFolder } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFolder } from 'obsidian';
 import { json } from 'stream/consumers';
 import { getApi, isPluginEnabled, registerApi } from "@aidenlx/folder-note-core";
+import { stringify } from 'querystring';
 const fetch = require('node-fetch');
 
 // Remember to rename these classes and interfaces!
@@ -102,11 +103,16 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 		await this.saveData(this.settings);
 	}
 
+	makeRootTechniqueFileContent(technique_types : Array<string>) : string {
+		var tech_list : string = '';
+		technique_types.forEach((_t) => tech_list+='1. [['+_t+']]\n');
+		return '#path_2\n\n# Technique Types:\n'+tech_list;
+	}
+
 	makeNodeFile(path : string, name : string, content : string) : void {
 		this.app.vault.create(path+'/'+name+'.md','#generated_by_rto_plugin '+content);
 	}
 
-	async makeFolder(path : string, name:string) : Promise<void>;
 	async makeFolder(path : string, name: string, noteContent? : string) : Promise<void> {
 		var make_note = false;
 		var truePath = path+'/'+name;
@@ -120,6 +126,10 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 		}
 
 		await this.app.vault.createFolder(truePath);
+
+		if (make_note) {
+			this.makeNodeFile(truePath,name,noteContent);
+		}
 		
 		// if (make_note) {
 		// 	var folder : TFolder = await this.app.vault.getAbstractFileByPath(truePath); 
@@ -133,15 +143,48 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 
 		console.log("========= Building Techniques from API data =========");
 		
-		var masterys_and_clusters_combined : string[] = [];
-		jsonData.techniques.forEach((tech:any) => {masterys_and_clusters_combined.push(tech.cluster);},this);		
-		masterys_and_clusters_combined = [...new Set(masterys_and_clusters_combined)];
-		console.log(masterys_and_clusters_combined);
+		//var masterys_and_clusters_combined : string[] = [];
+		//jsonData.techniques.forEach((tech:any) => {masterys_and_clusters_combined.push(tech.cluster);},this);		
+		//masterys_and_clusters_combined = [...new Set(masterys_and_clusters_combined)];
+		//console.log(masterys_and_clusters_combined);
 
 
+		var technique_map = new Map<string,Map<string,Array<any>>>();
 
-		this.makeFolder(root_path,this.settings.mySetting); //make root folder
+		jsonData.techniques.forEach((tech:any) => {
+			var masteryClusterPair = tech.cluster;
+			var mastery_type : string = masteryClusterPair.split('-')[0].trim();
+			var cluster_type : string = masteryClusterPair.split('-')[1].trim();
+			var mastery_exists : boolean = technique_map.has(mastery_type);
+			if (!mastery_exists) {
+				console.log(mastery_type+ " not found...");
+				technique_map.set(mastery_type,new Map<string,Array<any>>([[cluster_type,[tech]]]));
+				console.log(mastery_type+ " made!");
+			} else {
+				console.log("here with " +cluster_type+ " (" + tech.name + ")");
+				var cluster_exists : boolean = technique_map.get(mastery_type).has(cluster_type);
+				//console.log("Cluster found: "+cluster_exists);
+				if (!cluster_exists) {
+					console.debug("Got here instead?");
+					technique_map.get(mastery_type).set(cluster_type,[tech]);
+				} else {
+					console.debug("Got here?");
+					technique_map.get(mastery_type).get(cluster_type).push(tech);
+				}
+			}
+		});
+		console.log(technique_map);
 
+		
+		var current_path : string = this.settings.mySetting;
+
+		this.makeFolder(root_path,current_path,this.makeRootTechniqueFileContent(Array.from(technique_map.keys()))); //make root folder
+
+		current_path = root_path+'/'+current_path;
+		
+		technique_map.forEach((cluster, m_type, map) => {
+			this.makeFolder(current_path,m_type,'hi');
+		});
 
 	}
 
