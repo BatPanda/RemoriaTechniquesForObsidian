@@ -316,7 +316,7 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 				case IncreaseNodeTypes.SPEAR_DAMAGE_INCREASE: return "Spear Damage Increase Node";
 				case IncreaseNodeTypes.SPEAR_HIT_INCREASE: return "Spear Hit Increase Node";
 
-				case IncreaseNodeTypes.MAX_MOVEMENT_SPEED_INCREASE: return "Max Health Increase Node";
+				case IncreaseNodeTypes.MAX_MOVEMENT_SPEED_INCREASE: return "Max Movement Speed Increase Node";
 				case IncreaseNodeTypes.THP_LONG_REST_RECOVERY_INCREASE: return "THP Long Rest Recovery Increase Node";
 
 				case IncreaseNodeTypes.SOUL_ATTRIBUTE_PSI_TOLERANCE_INCREASE_NODE: return "Soul Attribute Psi Tolerance Increase Node";
@@ -349,13 +349,14 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 		
 		var nodes = new Map<MasteryTypes,Map<IncreaseNodeTypes,number>>();
 		var index = 0;
+
 		json_data.masteries.forEach((_m : any) => {
 			nodes.set(index,new Map<null,null>());
 			index++;
 		});
 		json_data.masteries.forEach((_m : any) => _m.stages.forEach((_s:any) => _s.levels.forEach((_l:any) => {if (_l.level_type == "increase") {
             if (!nodes.get(_m.type).has(levelToIncreaseType(_l))) {nodes.get(_m.type).set(levelToIncreaseType(_l),1);} 
-		else {nodes.get(_m.type).set(levelToIncreaseType(_l), nodes.get(_m.type).get(levelToIncreaseType(_l)+1));}}})));
+		else {nodes.get(_m.type).set(levelToIncreaseType(_l), nodes.get(_m.type).get(levelToIncreaseType(_l))+1);}}})));
 		
 		var existing_types : Array<IncreaseNodeTypes> = [];
 
@@ -374,7 +375,7 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 		var out = "\n#### Included Increase Nodes:\n";
 
 		existing_types.forEach(_t => {
-            var quant_counter : string;
+            var quant_counter : string = '';
 			increase_to_mast.get(_t).forEach((quant,mastery,map) => {quant_counter+='    - '+getStringMasteryType(mastery)+': '+quant+'\n'});
 
 
