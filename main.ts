@@ -369,7 +369,7 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 
         if (existing_types.length < 1) {
             console.log("This seems odd?");
-            return;
+            return '\n\n#### No stat increases.';
         }
 		
 		var out = "\n#### Included Increase Nodes:\n";
