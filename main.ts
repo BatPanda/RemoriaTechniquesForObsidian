@@ -192,8 +192,14 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 			FIST_HIT_INCREASE,
 			SPEAR_DAMAGE_INCREASE,
 			SPEAR_HIT_INCREASE,
+			BOW_DAMAGE_INCREASE,
+			BOW_HIT_INCREASE,
+
+			UNARMED_DAMAGE_INCREASE,
+			UNARMED_HIT_INCREASE,
 
 			MAX_MOVEMENT_SPEED_INCREASE,
+			MAX_UNDERWATER_MOVEMENT_SPEED_INCREASE,
 			THP_LONG_REST_RECOVERY_INCREASE,
 			
 			SOUL_ATTRIBUTE_MU_THRESHOLD_DECREASE_NODE,
@@ -207,7 +213,9 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 			SOUL_ATTRIBUTE_YEW_THRESHOLD_DECREASE_NODE,
 			SOUL_ATTRIBUTE_YEW_TOLERANCE_INCREASE_NODE,
 			SOUL_ATTRIBUTE_ZET_THRESHOLD_DECREASE_NODE,
-			SOUL_ATTRIBUTE_ZET_TOLERANCE_INCREASE_NODE
+			SOUL_ATTRIBUTE_ZET_TOLERANCE_INCREASE_NODE,
+
+			BLADE_EDGE_DAMAGE_IN_FRACTURES_INCREASE
 		}
 		enum MasteryTypes {
 			SMALL_SUCCESS,
@@ -225,12 +233,12 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 			}
 			
 			if (_level.level_content.toLowerCase().contains("comprehension. (up to")) return IncreaseNodeTypes.COMPREHENSION_INCREASE_NODE;
-			if (_level.level_content.toLowerCase().contains("wisdom score. (up to")) return IncreaseNodeTypes.WISDOM_SCORE_INCRASE_NODE; 
-			if (_level.level_content.toLowerCase().contains("dexterity score. (up to")) return IncreaseNodeTypes.DEXTERITY_SCORE_INCREASE_NODE; 
-			if (_level.level_content.toLowerCase().contains("strength score. (up to")) return IncreaseNodeTypes.STRENGTH_SCORE_INCREASE_NODE; 
-			if (_level.level_content.toLowerCase().contains("constitution score. (up to")) return IncreaseNodeTypes.CONSTITUTION_SCORE_INCREASE_NODE; 
-			if (_level.level_content.toLowerCase().contains("intelligence score. (up to")) return IncreaseNodeTypes.INTELLIGENCE_SCORE_INCREASE_NODE; 
-			if (_level.level_content.toLowerCase().contains("charisma score. (up to")) return IncreaseNodeTypes.CHARISMA_SCORE_INCREASE_NODE;
+			if (_level.level_content.toLowerCase().contains("wisdom score. (up to")  || _level.level_content.toLowerCase().contains("to wisdom. (to a minimum of")) return IncreaseNodeTypes.WISDOM_SCORE_INCRASE_NODE; 
+			if (_level.level_content.toLowerCase().contains("dexterity score. (up to") || _level.level_content.toLowerCase().contains("to dexterity. (to a minimum of")) return IncreaseNodeTypes.DEXTERITY_SCORE_INCREASE_NODE; 
+			if (_level.level_content.toLowerCase().contains("strength score. (up to")  || _level.level_content.toLowerCase().contains("to strength. (to a minimum of")) return IncreaseNodeTypes.STRENGTH_SCORE_INCREASE_NODE; 
+			if (_level.level_content.toLowerCase().contains("constitution score. (up to")  || _level.level_content.toLowerCase().contains("to constitution. (to a minimum of")) return IncreaseNodeTypes.CONSTITUTION_SCORE_INCREASE_NODE; 
+			if (_level.level_content.toLowerCase().contains("intelligence score. (up to")  || _level.level_content.toLowerCase().contains("to intelligence. (to a minimum of")) return IncreaseNodeTypes.INTELLIGENCE_SCORE_INCREASE_NODE; 
+			if (_level.level_content.toLowerCase().contains("charisma score. (up to")  || _level.level_content.toLowerCase().contains("to charisma. (to a minimum of")) return IncreaseNodeTypes.CHARISMA_SCORE_INCREASE_NODE;
 			if (_level.level_content.toLowerCase().contains("max hp. (up to") || _level.level_content.toLowerCase().contains("to your birds hp (up to")) return IncreaseNodeTypes.MAX_HEALTH_INCREASE_NODE; 
 			if (_level.level_content.toLowerCase().contains("damage reduction. (up to")) return IncreaseNodeTypes.DAMAGE_REDUCTION_INCREASE_NODE;
 			if (_level.level_content.toLowerCase().contains("reaction. (up to")) return IncreaseNodeTypes.REACTION_INCREASE_NODE; 
@@ -258,8 +266,14 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 			if (_level.level_content.toLowerCase().contains("fist hit. (up to")) return IncreaseNodeTypes.FIST_HIT_INCREASE;
 			if (_level.level_content.toLowerCase().contains("spear dmg. (up to")) return IncreaseNodeTypes.SPEAR_DAMAGE_INCREASE;
 			if (_level.level_content.toLowerCase().contains("spear hit. (up to")) return IncreaseNodeTypes.SPEAR_HIT_INCREASE;
+			if (_level.level_content.toLowerCase().contains("bow dmg. (up to")) return IncreaseNodeTypes.BOW_DAMAGE_INCREASE;
+			if (_level.level_content.toLowerCase().contains("bow hit. (up to")) return IncreaseNodeTypes.BOW_HIT_INCREASE;
+
+			if (_level.level_content.toLowerCase().contains("unarmed dmg. (up to")) return IncreaseNodeTypes.UNARMED_DAMAGE_INCREASE;
+			if (_level.level_content.toLowerCase().contains("unarmed hit. (up to")) return IncreaseNodeTypes.UNARMED_HIT_INCREASE;
 
 			if (_level.level_content.toLowerCase().contains("ft movement speed. (up to")) return IncreaseNodeTypes.MAX_MOVEMENT_SPEED_INCREASE;
+			if (_level.level_content.toLowerCase().contains("ft underwater movement speed. (up to")) return IncreaseNodeTypes.MAX_UNDERWATER_MOVEMENT_SPEED_INCREASE;
 			if (_level.level_content.toLowerCase().contains("hp long rest recovery increased by")) return IncreaseNodeTypes.THP_LONG_REST_RECOVERY_INCREASE;
 
 			if (_level.level_content.toLowerCase().contains("soul attribute psi tolerance increased by [")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_PSI_TOLERANCE_INCREASE_NODE;
@@ -274,7 +288,9 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 			if (_level.level_content.toLowerCase().contains("soul attribute yew threshold decreased by [")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_YEW_THRESHOLD_DECREASE_NODE;
 			if (_level.level_content.toLowerCase().contains("soul attribute zet tolerance increased by [")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_ZET_TOLERANCE_INCREASE_NODE;
 			if (_level.level_content.toLowerCase().contains("soul attribute zet threshold decreased by [")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_ZET_THRESHOLD_DECREASE_NODE;
-	
+
+			if (_level.level_content.toLowerCase().contains("edge damage to blades in fractures. (up to")) return IncreaseNodeTypes.BLADE_EDGE_DAMAGE_IN_FRACTURES_INCREASE;
+
 	
 			console.error("No case for "+_level.level_content+" currently registered in levelToIncreaseType.");
 		}
@@ -315,8 +331,14 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 				case IncreaseNodeTypes.FIST_HIT_INCREASE: return "Fist Hit Increase Node";
 				case IncreaseNodeTypes.SPEAR_DAMAGE_INCREASE: return "Spear Damage Increase Node";
 				case IncreaseNodeTypes.SPEAR_HIT_INCREASE: return "Spear Hit Increase Node";
+				case IncreaseNodeTypes.BOW_DAMAGE_INCREASE: return "Bow Damage Increase Node";
+				case IncreaseNodeTypes.BOW_HIT_INCREASE: return "Bow Hit Increase Node";
+
+				case IncreaseNodeTypes.UNARMED_DAMAGE_INCREASE: return "Unarmed Damage Increase Node";
+				case IncreaseNodeTypes.UNARMED_HIT_INCREASE: return "Unarmed Hit Increase Node";
 
 				case IncreaseNodeTypes.MAX_MOVEMENT_SPEED_INCREASE: return "Max Movement Speed Increase Node";
+				case IncreaseNodeTypes.MAX_UNDERWATER_MOVEMENT_SPEED_INCREASE: return "Max Underwater Movement Speed Increase Node";
 				case IncreaseNodeTypes.THP_LONG_REST_RECOVERY_INCREASE: return "THP Long Rest Recovery Increase Node";
 
 				case IncreaseNodeTypes.SOUL_ATTRIBUTE_PSI_TOLERANCE_INCREASE_NODE: return "Soul Attribute Psi Tolerance Increase Node";
@@ -331,6 +353,9 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 				case IncreaseNodeTypes.SOUL_ATTRIBUTE_YEW_THRESHOLD_DECREASE_NODE: return "Soul Attribute Yew Threshold Decrease Node";
 				case IncreaseNodeTypes.SOUL_ATTRIBUTE_ZET_TOLERANCE_INCREASE_NODE: return "Soul Attribute Zet Tolerance Increase Node";
 				case IncreaseNodeTypes.SOUL_ATTRIBUTE_ZET_THRESHOLD_DECREASE_NODE: return "Soul Attribute Zet Threshold Decrease Node";
+
+				case IncreaseNodeTypes.BLADE_EDGE_DAMAGE_IN_FRACTURES_INCREASE: return "Blade Edge Damage in Fracture Increase Node";
+
 				default: console.error('Type '+_t+' is not registered in increaseTypeToString()'); 
 			}
 		};

@@ -1,7 +1,7 @@
 {
 	"id": "remoria-techniques-for-obsidian",
 	"name": "Remoria Techniques for Obsidian",
-	"version": "1.0.1",
+	"version": "1.2.0",
 	"minAppVersion": "0.12.0",
 	"description": "A plugin to build the Remoria Techniques from the Wiki API json in Obsidian.",
 	"author": "TRBatpanda",
