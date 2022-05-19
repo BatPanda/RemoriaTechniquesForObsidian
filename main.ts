@@ -129,7 +129,7 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 
 	buildTechniqueTags(json_data:any,cluster_name:string):string {
 		var technique_name = json_data.name;
-		return '#path_2 #technique #technique_'+technique_name.toLowerCase().trim().replace(' ','_')
+		return '#path_2 #technique #technique_'+technique_name.toLowerCase().trim().replace(' ','_').replace(':','')
 		+' #cluster_'+cluster_name.toLowerCase().trim().replace(' ','_')+'\n';
 	}
 
@@ -215,6 +215,13 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 			SOUL_ATTRIBUTE_ZET_THRESHOLD_DECREASE_NODE,
 			SOUL_ATTRIBUTE_ZET_TOLERANCE_INCREASE_NODE,
 
+			SOUL_ATTRIBUTE_PSI_PRIME_CONDENSING_CHANCE,
+			SOUL_ATTRIBUTE_RHO_PRIME_CONDENSING_CHANCE,
+			SOUL_ATTRIBUTE_YEW_PRIME_CONDENSING_CHANCE,
+			SOUL_ATTRIBUTE_MU_PRIME_CONDENSING_CHANCE,
+			SOUL_ATTRIBUTE_NAU_PRIME_CONDENSING_CHANCE,
+			SOUL_ATTRIBUTE_ZET_PRIME_CONDENSING_CHANCE,
+
 			BLADE_EDGE_DAMAGE_IN_FRACTURES_INCREASE
 		}
 		enum MasteryTypes {
@@ -289,6 +296,13 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 			if (_level.level_content.toLowerCase().contains("soul attribute zet tolerance increased by [")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_ZET_TOLERANCE_INCREASE_NODE;
 			if (_level.level_content.toLowerCase().contains("soul attribute zet threshold decreased by [")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_ZET_THRESHOLD_DECREASE_NODE;
 
+			if (_level.level_content.toLowerCase().contains("percent chance for psi soul to condense as prime psi soul. (up to")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_PSI_PRIME_CONDENSING_CHANCE;
+			if (_level.level_content.toLowerCase().contains("percent chance for rho soul to condense as prime psi soul. (up to")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_RHO_PRIME_CONDENSING_CHANCE;
+			if (_level.level_content.toLowerCase().contains("percent chance for yew soul to condense as prime psi soul. (up to")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_YEW_PRIME_CONDENSING_CHANCE;
+			if (_level.level_content.toLowerCase().contains("percent chance for mu soul to condense as prime psi soul. (up to")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_MU_PRIME_CONDENSING_CHANCE;
+			if (_level.level_content.toLowerCase().contains("percent chance for nau soul to condense as prime psi soul. (up to")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_NAU_PRIME_CONDENSING_CHANCE;
+			if (_level.level_content.toLowerCase().contains("percent chance for zet soul to condense as prime psi soul. (up to")) return IncreaseNodeTypes.SOUL_ATTRIBUTE_ZET_PRIME_CONDENSING_CHANCE;
+
 			if (_level.level_content.toLowerCase().contains("edge damage to blades in fractures. (up to")) return IncreaseNodeTypes.BLADE_EDGE_DAMAGE_IN_FRACTURES_INCREASE;
 
 	
@@ -353,6 +367,13 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 				case IncreaseNodeTypes.SOUL_ATTRIBUTE_YEW_THRESHOLD_DECREASE_NODE: return "Soul Attribute Yew Threshold Decrease Node";
 				case IncreaseNodeTypes.SOUL_ATTRIBUTE_ZET_TOLERANCE_INCREASE_NODE: return "Soul Attribute Zet Tolerance Increase Node";
 				case IncreaseNodeTypes.SOUL_ATTRIBUTE_ZET_THRESHOLD_DECREASE_NODE: return "Soul Attribute Zet Threshold Decrease Node";
+
+				case IncreaseNodeTypes.SOUL_ATTRIBUTE_PSI_PRIME_CONDENSING_CHANCE: return "Soul Attribute Psi Prime Condensing Increase Node";
+				case IncreaseNodeTypes.SOUL_ATTRIBUTE_RHO_PRIME_CONDENSING_CHANCE: return "Soul Attribute Rho Prime Condensing Increase Node";
+				case IncreaseNodeTypes.SOUL_ATTRIBUTE_YEW_PRIME_CONDENSING_CHANCE: return "Soul Attribute Yew Prime Condensing Increase Node";
+				case IncreaseNodeTypes.SOUL_ATTRIBUTE_MU_PRIME_CONDENSING_CHANCE: return "Soul Attribute Mu Prime Condensing Increase Node";
+				case IncreaseNodeTypes.SOUL_ATTRIBUTE_NAU_PRIME_CONDENSING_CHANCE: return "Soul Attribute Nau Prime Condensing Increase Node";
+				case IncreaseNodeTypes.SOUL_ATTRIBUTE_ZET_PRIME_CONDENSING_CHANCE: return "Soul Attribute Zet Prime Condensing Increase Node";
 
 				case IncreaseNodeTypes.BLADE_EDGE_DAMAGE_IN_FRACTURES_INCREASE: return "Blade Edge Damage in Fracture Increase Node";
 
@@ -419,7 +440,14 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 
 	async makeFolder(path : string, name: string, noteContent? : string) : Promise<void> {
 		var make_note = false;
-		var truePath = path+'/'+name;
+		var path_name = "";
+		if (name.contains(":")) {
+			path_name = name.replace(/:/g,"");
+			console.warn("Technique name had a semi colon in its name. Folders cannot support this, so it was removed!");
+		} else {
+			path_name = name;
+		}
+		var truePath = path+'/'+path_name;
 		if (noteContent != null) {
 			make_note = true;
 		}
@@ -432,7 +460,7 @@ export default class RemoriaTechniquesForObsidian extends Plugin {
 		await this.app.vault.createFolder(truePath);
 
 		if (make_note) {
-			this.makeNodeFile(truePath,name,noteContent);
+			this.makeNodeFile(truePath,path_name,noteContent);
 		}
 		
 		// if (make_note) {
